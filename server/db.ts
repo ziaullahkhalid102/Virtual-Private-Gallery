@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const dbDir = path.join(process.cwd(), 'data');
 if (!fs.existsSync(dbDir)) {

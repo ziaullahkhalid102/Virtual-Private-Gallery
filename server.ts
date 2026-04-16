@@ -18,40 +18,50 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 async function startServer() {
-  const app = express();
-  
-  app.use(cors());
-  app.use(express.json());
-  
-  // Serve uploaded files statically
-  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-
-  // Initialize Database
-  initDb();
-
-  // API Routes
-  app.use('/api/auth', authRoutes);
-  app.use('/api/gallery', galleryRoutes);
-  app.use('/api/admin', adminRoutes);
-
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
+  try {
+    const app = express();
+    
+    app.use(cors());
+    app.use(express.json());
+    
+    // Health check
+    app.get('/api/health', (req, res) => {
+      res.json({ status: 'ok', message: 'Server is running' });
     });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+
+    // Serve uploaded files statically
+    app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+    // Initialize Database
+    initDb();
+
+    // API Routes
+    app.use('/api/auth', authRoutes);
+    app.use('/api/gallery', galleryRoutes);
+    app.use('/api/admin', adminRoutes);
+
+    // Vite middleware for development
+    if (process.env.NODE_ENV !== 'production') {
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: 'spa',
+      });
+      app.use(vite.middlewares);
+    } else {
+      const distPath = path.join(process.cwd(), 'dist');
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    }
+
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on http://localhost:${PORT}`);
     });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
-
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
 }
 
 startServer();

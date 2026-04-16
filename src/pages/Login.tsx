@@ -19,7 +19,15 @@ export default function Login() {
         body: JSON.stringify({ username, password })
       });
 
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error('Non-JSON response:', text);
+        throw new Error(`Server error: ${res.status} ${res.statusText}. Please ensure the backend is running.`);
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'Login failed');
