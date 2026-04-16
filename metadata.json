@@ -1,0 +1,6 @@
+{
+  "name": "Virtual Private Gallery",
+  "description": "A  secure, private media gallery for storing and managing images, videos, and audio files with custom authentication and security question recovery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
